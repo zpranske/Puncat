@@ -1,4 +1,3 @@
-/*
 PUNCAT™ Macro v2.4
 Zachary Pranske
 Rev. 9/18/22
@@ -39,4 +38,3 @@ puncta channels.
     7. Files containing info about ROIs and detected particles (puncta) are saved automatically
     8. Save the binary mask and puncta outline images if desired (recommended)
     9. Done! Close all windows before opening new image
-*/
