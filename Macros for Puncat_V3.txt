@@ -1,0 +1,258 @@
+Paradis Lab
+Zachary Pranske
+Rev. 10/03/2022
+
+Instructions
+********************************************************************************************************************
+Run Puncat quantification macros, saving the "Measure" file for ROI features and the "Summary" file for particle detection features for each one. (Note: in Puncat v2.4 and later this should be done automatically.)
+
+MAKE A BACKUP LOCATION FOR ALL SUMMARY, DRAWING, AND MEASURE FILES BEFORE PROCEEDING!!!
+
+***Pre-process the auto-generated Excel files***
+1. Create 3 new excel files and name them "Combined_Measures", "Combined_Summaries", and "Final Analysis"
+2. Within any of the open spreadsheets, go to View -> Macros-> View Macros. Make a new macro: type in a random name        (it will be overwritten anyway) and hit create. Paste in the appropriate file preprocessing macro below and          run the macro.
+3. Select all files in the "measure" folder and run. This should add a column containing the filename for each ROI. 	       This will be necessary later to identify which image the ROIs correspond to once the spreadsheets are               combined.
+4. Hit run again and repeat with all files in the "summary" folder.
+
+***Combine the processed Excel files for analysis***
+5. Go to the folder with your Puncat macro-generated files and make sure they are sorted by name.
+6. In each Combined excel file, paste and run mergeFiles macro as described in step 2. Select all relevant excel            files and press enter.
+7. Create a new tab at the end and name it "Combined Summary"/"Combined Measures" or something.
+8. Find the Combined_Measures or Combined_Summary Excel file from previous analyis (e.g. in Zach's folder in                paradis-lab drive under zpranske\project analysis\ZP_04 analysis 2022-09-19)
+9. Go to Data -> Get Data -> Launch Power Query Editor
+10. Copy the query called "summary", "measure", or similar in the left-hand panel
+11. In new Excel file, again go to Data -> Get Data -> From File -> From Excel Spreadsheet and open the current         worksheet
+12. Check "Select multiple items", then select all the sheets and click Load. This will take a minute.
+13. Go to Data -> Launch Power Query Editor. Select all queries, then hit Append. Add all the queries to the list,         then combine them. Hit Close and Load to finish. 
+14. In the right bar, right-click the query containing appended sheets (should be the last one on the list), then         click Load To... -> Table to populate.
+15. Move the newly-created Combined Summary/Combined Measures tab to beginning if desired.
+16. Copy both of the combined sheets into the "Final Analysis"
+
+Macros
+********************************************************************************************************************
+Sub preprocessMeasures()
+    'Loops through all files in a folder and tags each line with the image # (obtained from file name)
+    
+    'Define variables:
+    Dim numberOfFilesChosen, i As Integer
+    Dim tempFileDialog As FileDialog
+    Dim mainWorkbook, sourceWorkbook As Workbook
+    Dim tempWorkSheet As Worksheet
+    
+    Set mainWorkbook = Application.ActiveWorkbook
+    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    
+    'Allow the user to select multiple workbooks
+    tempFileDialog.AllowMultiSelect = True
+    
+    numberOfFilesChosen = tempFileDialog.Show
+    
+    'Loop through all selected workbooks
+    For i = 1 To tempFileDialog.SelectedItems.Count
+        
+        'Open each workbook
+        Workbooks.Open tempFileDialog.SelectedItems(i)
+        
+        Set sourceWorkbook = ActiveWorkbook
+        
+        '***********
+	Columns("B:B").Select
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Range("B2").Select
+    	ActiveCell.FormulaR1C1 = Sheets(1).Name
+    	Range("B2").Select
+   	Selection.AutoFill Destination:=Range("B2:B" & Range("A" & Rows.Count).End(xlUp).Row)
+	Range(Selection, Selection.End(xlDown)).Select
+    	Range("A1").Select
+    	ActiveCell.FormulaR1C1 = "ROI_#"
+    	Range("B1").Select
+    	ActiveCell.FormulaR1C1 = "Filename"
+	'***********
+        
+        'Close the source workbook
+        Application.DisplayAlerts = False
+	sourceWorkbook.Save
+        sourceWorkbook.Close
+        Application.DisplayAlerts = True
+    Next i
+End Sub
+********************************************************************************************************************
+Sub preprocessSummaries()
+
+'Loops through all files in a folder and tags each line with the image # (obtained from file name)
+    
+    'Define variables:
+    Dim numberOfFilesChosen, i As Integer
+    Dim tempFileDialog As FileDialog
+    Dim mainWorkbook, sourceWorkbook As Workbook
+    Dim tempWorkSheet As Worksheet
+    
+    Set mainWorkbook = Application.ActiveWorkbook
+    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    
+    'Allow the user to select multiple workbooks
+    tempFileDialog.AllowMultiSelect = True
+    
+    numberOfFilesChosen = tempFileDialog.Show
+    
+    'Loop through all selected workbooks
+    For i = 1 To tempFileDialog.SelectedItems.Count
+        
+        'Open each workbook
+        Workbooks.Open tempFileDialog.SelectedItems(i)
+        
+        Set sourceWorkbook = ActiveWorkbook
+
+	'*********** Code to add cell #'s to each ROI
+	Columns("B:B").Select
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Columns("A:A").Select
+    	Selection.TextToColumns Destination:=Range("A1"), DataType:=xlDelimited, _
+        	TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+        	Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        	:=":", FieldInfo:=Array(Array(1, 1), Array(2, 1), Array(3, 1)), _
+       		TrailingMinusNumbers:=True
+    	Columns("C:C").Select
+    	Selection.TextToColumns Destination:=Range("C1"), DataType:=xlDelimited, _
+        	TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=False, _
+        	Semicolon:=False, Comma:=False, Space:=False, Other:=True, OtherChar _
+        	:="/", FieldInfo:=Array(Array(1, 1), Array(2, 1)), TrailingMinusNumbers:=True
+    	Columns("B:B").Select
+    	Selection.Delete Shift:=xlToLeft
+    	Range("B2").Select
+    	Range(Selection, Selection.End(xlDown)).Select
+    	Selection.Cut
+    	Columns("B:B").Select
+    	Application.CutCopyMode = False
+    	Selection.Cut
+    	Columns("A:A").Select
+    	ActiveSheet.Paste
+    	Range("A1").Select
+    	ActiveCell.FormulaR1C1 = "cell_z"
+    	Range("B2").Select
+    	ActiveCell.FormulaR1C1 = ""
+    	Range("B1").Select
+    	ActiveCell.FormulaR1C1 = "cell #"
+    	Range("B2").Select
+    	ActiveCell.FormulaR1C1 = "0"
+    	Range("B3").Select
+    	ActiveCell.FormulaR1C1 = "=IF(RC[-1]>R[-1]C[-1],R[-1]C,R[-1]C+1)"
+    	Range("B3").Select
+    	Selection.AutoFill Destination:=Range("B3:B" & Range("A" & Rows.Count).End(xlUp).Row)
+    	Range(Selection, Selection.End(xlDown)).Select
+    	ActiveWindow.SmallScroll Down:=0
+    	Columns("D:D").Select
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Columns("D:E").Select
+    	Selection.Delete Shift:=xlToLeft
+    	Range("C1").Select
+    	ActiveCell.FormulaR1C1 = "orig_filename"
+        
+        '*********** Code to add filename to each file
+	Columns("B:B").Select
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Range("B2").Select
+    	ActiveCell.FormulaR1C1 = Sheets(1).Name
+    	Range("B2").Select
+   	Selection.AutoFill Destination:=Range("B2:B" & Range("A" & Rows.Count).End(xlUp).Row)
+	Range(Selection, Selection.End(xlDown)).Select
+    	Range("A1").Select
+    	ActiveCell.FormulaR1C1 = "ROI_#"
+    	Range("B1").Select
+    	ActiveCell.FormulaR1C1 = "Filename"
+	'***********
+        
+        'Close the source workbook
+        Application.DisplayAlerts = False
+	sourceWorkbook.Save
+        sourceWorkbook.Close
+        Application.DisplayAlerts = True
+    Next i
+End Sub
+********************************************************************************************************************
+Sub mergeFiles()
+    'Merges all files in a folder to a main file (Giving x Worksheets in this File)
+    
+    'Define variables:
+    Dim numberOfFilesChosen, i As Integer
+    Dim tempFileDialog As FileDialog
+    Dim mainWorkbook, sourceWorkbook As Workbook
+    Dim tempWorkSheet As Worksheet
+    
+    Set mainWorkbook = Application.ActiveWorkbook
+    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    
+    'Allow the user to select multiple workbooks
+    tempFileDialog.AllowMultiSelect = True
+    
+    numberOfFilesChosen = tempFileDialog.Show
+    
+    'Loop through all selected workbooks
+    For i = 1 To tempFileDialog.SelectedItems.Count
+        
+        'Open each workbook
+        Workbooks.Open tempFileDialog.SelectedItems(i)
+        
+        Set sourceWorkbook = ActiveWorkbook
+        
+        'Copy each worksheet to the end of the main workbook
+        For Each tempWorkSheet In sourceWorkbook.Worksheets
+            tempWorkSheet.Copy After:=mainWorkbook.Sheets(mainWorkbook.Worksheets.Count)
+        Next tempWorkSheet
+        
+        'Close the source workbook
+        Application.DisplayAlerts = False
+        sourceWorkbook.Close
+        Application.DisplayAlerts = True
+    Next i
+    
+    mainWorkbook.Save
+    
+End Sub
+********************************************************************************************************************
+Sub delete_sheets()
+    'Deletes Sheets in various Files. Define Sheets to be deleted in If condition of for each loop
+    
+    'Define variables:
+    Dim numberOfFilesChosen, i As Integer
+    Dim tempFileDialog As FileDialog
+    Dim mainWorkbook, sourceWorkbook As Workbook
+    Dim tempWorkSheet As Worksheet
+    
+    Set mainWorkbook = Application.ActiveWorkbook
+    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    
+    'Allow the user to select multiple workbooks
+    tempFileDialog.AllowMultiSelect = True
+    
+    numberOfFilesChosen = tempFileDialog.Show
+    
+    'Loop through all selected workbooks
+    For i = 1 To tempFileDialog.SelectedItems.Count
+        
+        'Open each workbook
+        Application.ScreenUpdating = False
+        Workbooks.Open tempFileDialog.SelectedItems(i)
+        
+        Set sourceWorkbook = ActiveWorkbook
+        
+        'Copy each worksheet to the end of the main workbook
+        For Each tempWorkSheet In sourceWorkbook.Worksheets
+            If tempWorkSheet.Name = "Sheet2" Then
+                tempWorkSheet.Delete
+            End If
+        Next tempWorkSheet
+        
+        'Close the source workbook
+        Application.DisplayAlerts = False
+        sourceWorkbook.Save
+        sourceWorkbook.Close
+        Application.DisplayAlerts = True
+    Next i
+    
+    Application.ScreenUpdating = True
+End Sub
+********************************************************************************************************************
