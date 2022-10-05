@@ -21,10 +21,10 @@ MAKE A BACKUP LOCATION FOR ALL SUMMARY, DRAWING, AND MEASURE FILES BEFORE PROCEE
 8. Find the Combined_Measures or Combined_Summary Excel file from previous analyis (e.g. in Zach's folder in                paradis-lab drive under zpranske\project analysis\ZP_04 analysis 2022-09-19)
 9. Go to Data -> Get Data -> Launch Power Query Editor
 10. Copy the query called "summary", "measure", or similar in the left-hand panel
-11. In new Excel file, again go to Data -> Get Data -> From File -> From Excel Spreadsheet and open the current         worksheet
+11. In new Excel file, again go to Data -> Get Data -> From File -> From Excel Workbook and open the current         worksheet
 12. Check "Select multiple items", then select all the sheets and click Load. This will take a minute.
-13. Go to Data -> Launch Power Query Editor. Select all queries, then hit Append. Add all the queries to the list,         then combine them. Hit Close and Load to finish. 
-14. In the right bar, right-click the query containing appended sheets (should be the last one on the list), then         click Load To... -> Table to populate.
+13. Go to Get Data -> Launch Power Query Editor. Select all queries, then hit Append Queries. Add all the queries to 	the list, then combine them. Hit Close and Load to finish. 
+14. In the right bar, right-click the query containing appended sheets (should be the last one on the list), then            click Load To... -> Table to populate.
 15. Move the newly-created Combined Summary/Combined Measures tab to beginning if desired.
 16. Copy both of the combined sheets into the "Final Analysis"
 
@@ -66,7 +66,7 @@ Sub preprocessMeasures()
     	Range("A1").Select
     	ActiveCell.FormulaR1C1 = "ROI_#"
     	Range("B1").Select
-    	ActiveCell.FormulaR1C1 = "Filename"
+    	ActiveCell.FormulaR1C1 = "filename"
 	'***********
         
         'Close the source workbook
@@ -160,9 +160,9 @@ Sub preprocessSummaries()
    	Selection.AutoFill Destination:=Range("B2:B" & Range("A" & Rows.Count).End(xlUp).Row)
 	Range(Selection, Selection.End(xlDown)).Select
     	Range("A1").Select
-    	ActiveCell.FormulaR1C1 = "ROI_#"
+    	ActiveCell.FormulaR1C1 = "cell_z"
     	Range("B1").Select
-    	ActiveCell.FormulaR1C1 = "Filename"
+    	ActiveCell.FormulaR1C1 = "filename"
 	'***********
         
         'Close the source workbook
