@@ -5,23 +5,78 @@ Rev. 09/29/2022
 Instructions
 ********************************************************************************************************************
 0. Run Puncat quantification macros, saving the "Measure" file for ROI features and the "Summary" file for particle detection features for each one. (Note: in Puncat v2.4 and later this should be done automatically.)
+
+***Pre-process the auto-generated Excel files***
 1. Create 3 new excel files and name them "Combined_Measures", "Combined_Summaries", and "Final Analysis"
-2. Go to the folder with your Puncat macro-generated files and make sure they are sorted by name.
-3. In each Combined excel file, paste and run mergeFiles macro. Select all relevant excel files and press enter.
-4. Create a new tab at the end and name it "Combined Summary"/"Combined Measures" or something.
-5. Find the Combined_Measures or Combined_Summary Excel file from previous analyis (e.g. in Zach's folder in                 paradis-lab drive under zpranske\project analysis\ZP_04 analysis 2022-09-19)
-6. Go to Data -> Get Data -> Launch Power Query Editor
-7. Copy the query called "summary", "measure", or similar in the left-hand panel
-8. In new Excel file, again go to Data -> Get Data -> Launch Power Query Editor
-9. Paste the query into the left-hand panel of the Power Query Editor. You will see an "incorrect file path" type error.
-10. Change the file path to that of the measure or summary folder in TWO places
-        1) Click the measure or summary query in the left panel, select Advanced Editor in the top bar, and change 	the source in line 1 to the correct path
+2. Within any of the open spreadsheets, go to View -> Macros-> View Macros. Make a new macro: type in a random name        (it will be overwritten anyway) and hit create. Paste in the addFilenames() macro below and run the macro.
+3. Select all files in the "measure" folder and run. This should add a column containing the filename for each ROI. 	       This will be necessary later to identify which image the ROIs correspond to once the spreadsheets are               combined.
+4. Repeat with all files in the "summary" folder.
+
+***Combine the processed Excel files for analysis***
+5. Go to the folder with your Puncat macro-generated files and make sure they are sorted by name.
+6. In each Combined excel file, paste and run mergeFiles macro as described in step 2. Select all relevant excel        files and press enter.
+7. Create a new tab at the end and name it "Combined Summary"/"Combined Measures" or something.
+8. Find the Combined_Measures or Combined_Summary Excel file from previous analyis (e.g. in Zach's folder in                 paradis-lab drive under zpranske\project analysis\ZP_04 analysis 2022-09-19)
+9. Go to Data -> Get Data -> Launch Power Query Editor
+10. Copy the query called "summary", "measure", or similar in the left-hand panel
+11. In new Excel file, again go to Data -> Get Data -> Launch Power Query Editor
+12. Paste the query into the left-hand panel of the Power Query Editor. You will see an "incorrect file path" type error.
+13. Change the file path to that of the measure or summary folder in TWO places
+        1) Click the measure or summary query in the left panel, select Advanced Editor in the top bar, and change 	               the source in line 1 to the correct path
 	2) Repeat this with the Sample File in the left panel
 11. Hit Close & Load to run the Power Query. This should aggregate and filter all the sheets.
 12. Move the newly-created Combined Summary/Combined Measures tab to beginning if desired.
 13. Copy both of the combined sheets into the "Final Analysis"
 
 Macros
+********************************************************************************************************************
+Sub addFilenames()
+    'Loops through all files in a folder and tags each line with the image # (obtained from file name)
+    
+    'Define variables:
+    Dim numberOfFilesChosen, i As Integer
+    Dim tempFileDialog As FileDialog
+    Dim mainWorkbook, sourceWorkbook As Workbook
+    Dim tempWorkSheet As Worksheet
+    
+    Set mainWorkbook = Application.ActiveWorkbook
+    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    
+    'Allow the user to select multiple workbooks
+    tempFileDialog.AllowMultiSelect = True
+    
+    numberOfFilesChosen = tempFileDialog.Show
+    
+    'Loop through all selected workbooks
+    For i = 1 To tempFileDialog.SelectedItems.Count
+        
+        'Open each workbook
+        Workbooks.Open tempFileDialog.SelectedItems(i)
+        
+        Set sourceWorkbook = ActiveWorkbook
+        
+        '***********
+	Columns("B:B").Select
+    	Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    	Range("B2").Select
+    	ActiveCell.FormulaR1C1 = Sheets(1).Name
+    	Range("B2").Select
+   	Selection.AutoFill Destination:=Range("B2:B" & Range("A" & Rows.Count).End(xlUp).Row)
+	Range(Selection, Selection.End(xlDown)).Select
+    	Range("A1").Select
+    	ActiveCell.FormulaR1C1 = "ROI_#"
+    	Range("B1").Select
+    	ActiveCell.FormulaR1C1 = "Filename"
+	'***********
+        
+        'Close the source workbook
+        Application.DisplayAlerts = False
+	sourceWorkbook.Save
+        sourceWorkbook.Close
+        Application.DisplayAlerts = True
+    Next i
+    
+End Sub
 ********************************************************************************************************************
 Sub delete_sheets()
     'Deletes Sheets in various Files. Define Sheets to be deleted in If condition of for each loop
