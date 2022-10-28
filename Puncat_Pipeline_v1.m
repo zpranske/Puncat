@@ -11,9 +11,10 @@
 % on the project type.
 
 %% Combine files
+uiwait(msgbox('Open analysis folder containing subfolders called "measure" and "summary"'))
 d = dir(uigetdir('C:\Users\Zachary_Pranske\Desktop\pipeline_inputs'));
 while(~max(ismember({d(1:end).name},"measure")) || ~max(ismember({d(1:end).name},"summary")))
-    disp('ERROR: Folder must be parent folder containing "measure" and "summary" folders')
+    error('Folder must be parent folder containing "measure" and "summary" folders')
     d = dir(uigetdir('C:\Users\Zachary_Pranske\Desktop\pipeline_inputs'));
 end; 
 
@@ -27,36 +28,81 @@ end;
  measure_files = dir([d_measure.folder '\' d_measure.name]);
  summary_files = dir([d_summary.folder '\' d_summary.name]);
 
- M = processMeasures(measure_files);
+ M = processMeasures(measure_files); 
+ M_cells = M(M.Shape_Type == "cell",:);
  S = processSummary(summary_files);
  disp('File processing done!')
+ warning('off','all') 
+
+ T = [M_cells, S(ismember(S.Unique_Z_ID_S,M_cells.Unique_Z_ID),6:end)];
  
+ uiwait(msgbox('Upload decoding file: Should be an Excel spreadsheet or csv containing columns called "File#", "Condition", and "Region"','Upload decoding file'))
+ d_coding = uigetfile('*.*','Select file','C:\Users\Zachary_Pranske\Desktop\pipeline_inputs');
+ D = readtable([d(1).folder,'\',d_coding]);
+ 
+ if ~(D.Properties.VariableNames == [{'File_'} {'Condition'} {'Region'}])
+     D.Properties.VariableNames(1) = {'File_'};
+     if ~(D.Properties.VariableNames == [{'File_'} {'Condition'} {'Region'}])
+         error('Unable to match file #s. Check decoding file headers.')
+     end
+ end
+     
+         
+ 
+ %Assign cells to their treatment condition and region based on codebreaker
+ %file    
+ disp('Assigning treatment conditions to coded filenames...')
+
+ for i=1:height(D)
+     T(T.("CodedFile#")==(D.File_(i)),39) = table(string(D.Condition(i)));
+     T(T.("CodedFile#")==(D.File_(i)),40) = table(string(D.Region(i)));
+ end
+ 
+ T = renamevars(T,'Var39','Condition');
+ T = renamevars(T,'Var40','Region');
+ T = [T(:,1:7) T(:,end-1:end) T(:,8:end-2)];
+ 
+ disp('Checking file for incomplete data...')
+ if(max(ismissing(T.Condition))>0 || max(ismissing(T.Region))>0)
+     error('Check decoding file: some file numbers are missing from spreadsheet.')
+ end
+ disp('No missing files found! Dataset ready for analysis.')
+ 
+ %Get a list of treatment conditions and regions from the table T
+ conditions = unique(T.Condition);
+ regions = unique(T.Region);
+ 
+ %Make a cell containing one subtable for each condition and region
+ subT_conditions = {};
+ for i=1:length(conditions)
+     subT_conditions{i} = T(T.Condition==conditions(i),:);
+ end
+ subT_regions = {};
+ for i=1:length(regions)
+     subT_regions{i} = T(T.Region==regions(i),:);
+ end
+ 
+%% GRAPHING
 
 
-%% GRAPHING - Need to format data for import
-% b = bar([1 2],[mean(gfpdata(:,5)) mean(sema4ddata(:,5))]);
-% b.FaceColor = [.8 .8 .9];
-% b.BarWidth = .8;
-% hold on
-% plotSpread(gfpdata(1:end,5),'BinWidth',.025,'DistributionMarkers','.','xValues',1);
-% plotSpread(sema4ddata(1:end,5),'BinWidth',.025,'DistributionMarkers','.','xValues',2);
-% e = errorbar([1 2], [mean(gfpdata(:,5)) mean(sema4ddata(:,5))], [std(gfpdata(:,5))/sqrt(length(gfpdata(:,5)))...
-%     std(sema4ddata(:,5))/sqrt(length(sema4ddata(:,5)))]);
-% e.LineWidth = 1.25;
-% e.LineStyle = 'none';
-% e.Color = 'r';
-% box off
-% 
-% figure(2)
-% b = bar([1 2],[mean(gfpdata(:,6)) mean(sema4ddata(:,6))]);
-% b.FaceColor = [.8 .8 .9];
-% b.BarWidth = .8;
-% hold on
-% plotSpread(gfpdata(1:end,6),'BinWidth',.025,'DistributionMarkers','.','xValues',1);
-% plotSpread(sema4ddata(1:end,6),'BinWidth',.025,'DistributionMarkers','.','xValues',2);
-% e = errorbar([1 2], [mean(gfpdata(:,6)) mean(sema4ddata(:,6))], [std(gfpdata(:,6))/sqrt(length(gfpdata(:,6)))...
-%     std(sema4ddata(:,6))/sqrt(length(sema4ddata(:,6)))]);
-% e.LineWidth = 1.25;
-% e.LineStyle = 'none';
-% e.Color = 'r';
-% box off
+
+b=bar([1:length(conditions)]); hold on;
+for i=1:length(conditions)
+    b.YData(i) = mean(subT_conditions{i}.Count);
+end
+
+for i=1:length(conditions)
+    plotSpread(subT_conditions{i}.Count,'BinWidth',.025,'DistributionMarkers','.','xValues',i);
+    e = errorbar(i,mean(subT_conditions{i}.Count),mean(subT_conditions{i}.Count)/sqrt(height(subT_conditions{i}.Count)));
+    e.LineWidth = 1.25;
+    e.LineStyle = 'none';
+    e.Color = 'r';
+end
+
+b.Parent.XAxis.TickValues = [1:length(conditions)];
+b.FaceColor = [.8 .8 .9]; box off;
+b.BarWidth = .8;
+b.Parent.XTickLabel = conditions;
+b.Parent.XLabel.String = "Treatment Condition";
+b.Parent.YLabel.String = "Total # of Puncta";
+b.Parent.Title.String = b.Parent.YLabel.String;
