@@ -67,42 +67,15 @@ end;
      error('Check decoding file: some file numbers are missing from spreadsheet.')
  end
  disp('No missing files found! Dataset ready for analysis.')
- 
- %Get a list of treatment conditions and regions from the table T
- conditions = unique(T.Condition);
- regions = unique(T.Region);
- 
- %Make a cell containing one subtable for each condition and region
- subT_conditions = {};
- for i=1:length(conditions)
-     subT_conditions{i} = T(T.Condition==conditions(i),:);
- end
- subT_regions = {};
- for i=1:length(regions)
-     subT_regions{i} = T(T.Region==regions(i),:);
- end
- 
+   
 %% GRAPHING
 
+%Pass in the table T, a string corresponding to the table column to
+%   analyze, and a string corresponding to the column containing the subgroup
+%   identifier (e.g. Condition or Region)
 
+%You can also optionally pass in strings for xlabel, ylabel, and title, but
+%   they have to be in that order. Other params can be changed by accessing 
+%   the graph by its handle b or accessing the axis by the handle b.Parent
 
-b=bar([1:length(conditions)]); hold on;
-for i=1:length(conditions)
-    b.YData(i) = mean(subT_conditions{i}.Count);
-end
-
-for i=1:length(conditions)
-    plotSpread(subT_conditions{i}.Count,'BinWidth',.025,'DistributionMarkers','.','xValues',i);
-    e = errorbar(i,mean(subT_conditions{i}.Count),mean(subT_conditions{i}.Count)/sqrt(height(subT_conditions{i}.Count)));
-    e.LineWidth = 1.25;
-    e.LineStyle = 'none';
-    e.Color = 'r';
-end
-
-b.Parent.XAxis.TickValues = [1:length(conditions)];
-b.FaceColor = [.8 .8 .9]; box off;
-b.BarWidth = .8;
-b.Parent.XTickLabel = conditions;
-b.Parent.XLabel.String = "Treatment Condition";
-b.Parent.YLabel.String = "Total # of Puncta";
-b.Parent.Title.String = b.Parent.YLabel.String;
+b = plotVariable(T, "TotalArea", "Region");
