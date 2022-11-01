@@ -1,6 +1,6 @@
 
 /*
-PUNCAT™ Macro v2.4
+PUNCAT™ Macro v3.0
 Zachary Pranske
 Rev. 9/18/22
 
@@ -25,7 +25,7 @@ INSTRUCTIONS TO USE
 Notes: This code is designed to quantify synaptic puncta in a 1um radius around a cell. It relies on a
 somewhat arbitrary method of setting a single linear threshold of detection and then applying
 a watershed resegmentation algorithm to the resulting particles. It does NOT quantify puncta 
-across multiple Z-stacks by default (although you may do this manually) or colocalize different 
+across multiple Z-stacks by default (although this is done in the Puncat Pipeline) or colocalize different 
 puncta channels.
 
     0. Within your analysis folder, create 3 folders called "drawing", "measure", "summary", and "rois (no caps)
@@ -42,10 +42,11 @@ puncta channels.
     9. Done! Close all windows before opening new image
 */
 
-CHECK THESE PARAMETERS BEFORE RUNNING
+// CHECK THESE PARAMETERS BEFORE RUNNING
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// CHECK THE ROOT FILEPATH -- MUST USE FORWARD SLASHES
+
+// NOTE: Root filepath must use forward slashes
 
 path2save = "C:/Users/Zachary_Pranske/Desktop/ZP_03 pyramidal cell reanalysis 2022-10-31"
 path2savedrawing = path2save + "/drawing"
@@ -158,7 +159,7 @@ roi_no_in_drawing=1;
 for(i=first_roi;i<RoiManager.size;i++){
     roiManager("Select", i);
     roiManager("Rename", "puncta_" + roi_no_in_drawing);
-    //roiManager("Measure");
+    roiManager("Measure");
     roi_no_in_drawing++;
 }
 
@@ -203,6 +204,7 @@ close(otherchannel + filen + "_1.czi")
 close(punctachannel + "Puncta-Subtracted " + filen + "_1.czi.tif")
 close("Composite")
 
+run("Close")
 run("Close")
 run("Close")
 run("Close")
