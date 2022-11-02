@@ -39,4 +39,8 @@ puncta channels.
     7. Close all channels except the channel where you are drawing ROIs and the puncta channel.
     8. Follow on screen prompts until done.
     9. Files containing info about ROIs and detected particles (puncta) are saved automatically.
-    9. Done! Close all windows before opening new image if needed.
+    10. Repeat with all images in the dataset.
+    11. Create an Excel file with columns "Image#", "Condition", and "Region" and add decoding information.
+    12. Run the Puncat Pipeline in Matlab R2020a or later. Remember to specify graphs and stats.
+    13. Done! Puncat Pipeline should automatically process, collate, plot, and run stats on your dataset.
+    
