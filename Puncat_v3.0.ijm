@@ -57,8 +57,8 @@ path2saverois = path2save + "/rois"
 band_width = 1.00
 punctachannel = "C1-"
 otherchannel = "C2-"
-minthreshold = 500 			//Adjust for each round of imaging
-maxthreshold = 10000000000 	//Don't change
+minthreshold = 392 		//Adjust for each round of imaging
+maxthreshold = 65535 	//Don't change
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

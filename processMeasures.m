@@ -9,7 +9,7 @@ function[M] = processMeasures(measure_files)
      
      warning('off','all')     
      M = [];
-     for i = 3:length(measure_files)
+     for i = 1:length(measure_files)
         temp_M = readtable([measure_files(i).folder '\' measure_files(i).name]);
         if~(temp_M.Properties.VariableNames == measure_format)
             error(['Header format for file ' measure_files(i).name ' is not correct!'])

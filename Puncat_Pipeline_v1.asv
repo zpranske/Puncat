@@ -26,6 +26,11 @@ end;
  d_measure = d(ismember({d(1:end).name},"measure"));
  d_summary = d(ismember({d(1:end).name},"summary"));
  measure_files = dir([d_measure.folder '\' d_measure.name]);
+ idx=[];
+ for i=1:length(measure_files)
+    idx(i) = contains(measure_files(i).name,"Measure");
+ end
+ 
  summary_files = dir([d_summary.folder '\' d_summary.name]);
 
  M = processMeasures(measure_files); 
@@ -63,7 +68,7 @@ end;
  T = [T(:,1:7) T(:,end-1:end) T(:,8:end-2)];
  
  disp('Checking file for incomplete data...')
- if(max(ismissing(T.Condition))>0 || max(ismissing(T.Region))>0)
+ if(max(ismissing(T.Condition))>0 || min(strlength(T.Condition))== 0 || max(ismissing(T.Region))>0 || min(strlength(T.Region))== 0)
     error('Check decoding file: some coded file numbers could not be assigned a condition or region.');
  end
  disp('No missing files found! Dataset ready for analysis.')
@@ -76,14 +81,14 @@ end;
 
 %Pass in the table T, a string corresponding to the table column to
 %   analyze, and a string corresponding to the column containing the subgroup
-%   identifier (e.g. Condition or Region)
+%   identifier (e.g. Condition or Region). Can optionally include a string
+%   containing the name of the treatment group to normalize to.
 
-%You can also optionally pass in strings for xlabel, ylabel, and title, but
-%   they have to be in that order. Other params can be changed by accessing 
-%   the graph by its handle b or accessing the axis by the handle b.Parent
+figure(1); b = plotVariable(T, "NormCount", "Condition");
+figure(2); b2 = plotVariable(T, "NormCount", "Condition", "ctrl_test");
 
-figure(1); b = plotVariable(T, "TotalArea", "Condition");
-figure(2); b2 = plotVariable(T, "NormCount", "Condition", "Condition", "GAD65 puncta / uM");
+%Graph params can be changed by accessing the graph by its handle b or 
+%   accessing the axis by the handle b.Parent
 
 %% STATS
 
