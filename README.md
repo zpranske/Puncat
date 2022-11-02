@@ -26,7 +26,7 @@ a watershed resegmentation algorithm to the resulting particles. It does NOT qua
 across multiple Z-stacks by default (although you may do this manually) or colocalize different 
 puncta channels.
 
-    0. Within your analysis folder, create 3 folders called "drawing", "measure", "summary", and "rois" (no caps).
+    0. Within your analysis folder, create 4 folders called "drawing", "measure", "summary", and "rois" (no caps).
     1. Set path where you want to save your files ("path2save" in first line below instructions) and
 	   set radius around ROIs to look at (by default, band=1.00 um).
     2. Download and save Puncat_v3.0.ijm macro from this repo.
