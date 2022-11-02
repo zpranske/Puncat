@@ -35,12 +35,10 @@ puncta channels.
     4. For each set of images, subtract background with same rolling ball radius as in macro; 
            use a few images to empirically determine threshold for each image set.
     5. Update the threshold in the macro.
-    6. Run the macro for each image.
-    7. Close all channels except the channel where you are drawing ROIs and the puncta channel.
-    8. Follow on screen prompts until done.
-    9. Files containing info about ROIs and detected particles (puncta) are saved automatically.
-    10. Repeat with all images in the dataset.
-    11. Create an Excel file with columns "Image#", "Condition", and "Region" and add decoding information.
-    12. Run the Puncat Pipeline in Matlab R2020a or later. Remember to specify graphs and stats.
-    13. Done! Puncat Pipeline should automatically process, collate, plot, and run stats on your dataset.
+    6. Run the macro and follow on screen prompts until done.
+           Files containing info about ROIs and detected particles (puncta) are saved automatically.
+    7. Repeat step 6 with all images in the dataset. Adjust the threshold for each new set of images.
+    8. Create an Excel file with columns "Image#", "Condition", and "Region" and add decoding information.
+    9. Run the Puncat Pipeline in Matlab R2020a or later. Remember to specify graphs and stats.
+    10. Done! Puncat Pipeline should automatically process, collate, plot, and run stats on your dataset.
     
