@@ -49,18 +49,20 @@ puncta channels.
 // NOTE: Root filepath must use forward slashes
 
 path2save = "C:/Users/Zachary_Pranske/Desktop/ZP_03 pyramidal cell reanalysis 2022-10-31"
+
+minthreshold = 867 		//Adjust for each round of imaging
+maxthreshold = 65535 	//Don't change
+band_width = 1.00
+punctachannel = "C1-"
+otherchannel = "C2-"
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 path2savedrawing = path2save + "/drawing"
 path2savemeasure = path2save + "/measure"
 path2savesummary = path2save + "/summary"
 path2saverois = path2save + "/rois"
-
-band_width = 1.00
-punctachannel = "C1-"
-otherchannel = "C2-"
-minthreshold = 392 		//Adjust for each round of imaging
-maxthreshold = 65535 	//Don't change
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 filen = getTitle();
 run("Split Channels");
@@ -204,6 +206,8 @@ close(otherchannel + filen + "_1.czi")
 close(punctachannel + "Puncta-Subtracted " + filen + "_1.czi.tif")
 close("Composite")
 
+run("Close")
+run("Close")
 run("Close")
 run("Close")
 run("Close")

@@ -1,7 +1,5 @@
 function[] = runstats2(T, var2graph, x_group_string, x_groups)
 
-var2graph = "Count";
-x_groups = ["ctrl_test" "sema4d_test"];
 if length(x_groups)>2 
     error('This function is only designed to compare 2 groups! Use (new function name) to compare >2 groups');
 end
@@ -12,7 +10,9 @@ subT_x_group{2} = T(table2array(T(:,strcmp(T.Properties.VariableNames,x_group_st
 
 %Independent samples t-test, uncorrected
 alpha = 0.05;
-[H P CI Stats] = ttest2(subT_x_group{1}.NormCount, subT_x_group{2}.NormCount,'alpha',alpha);
+group1 = table2array(subT_x_group{1}(:,find(subT_x_group{1}.Properties.VariableNames==var2graph)));
+group2 = table2array(subT_x_group{2}(:,find(subT_x_group{2}.Properties.VariableNames==var2graph)));
+[H P CI Stats] = ttest2(group1, group2,'alpha',alpha);
 if H>0 sig = ""; 
     else sig = "NOT "; 
 end

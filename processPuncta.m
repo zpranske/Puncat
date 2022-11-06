@@ -31,8 +31,8 @@ function[P_all, P] = processPuncta(puncta_files)
      P = renamevars(P,'p','CodedFile#');
      
      %Copy info on ROI intensity from second half of table to first half
-     P_upper = P(1:height(P)/2,:);
-     P_lower = P((height(P)/2+1):end,:);
+     P_upper = P(contains(P.Label, "Drawing"),:);
+     P_lower = P(contains(P.Label, "Subtracted"),:);
      P_upper.Mean = P_lower.Mean;
      P_upper.Min = P_lower.Min;     
      P_upper.Max = P_lower.Max;
@@ -47,20 +47,24 @@ function[P_all, P] = processPuncta(puncta_files)
      for i=1:length(labels)
         s = strsplit(labels(i),':');
         puncta_string = strsplit(s(2),'_');
-        label_bin(i,1) = table(str2num(puncta_string(2)));
+        label_bin(i,1) = table(s(1));
+        label_bin(i,2) = table(str2num(puncta_string(2)));
         coded_z = str2num(s(3));
-        label_bin(i,2) = {coded_z};
+        label_bin(i,3) = {coded_z};
         
         if i==1 cell_num = 1;
-        else if label_bin{i,2}<label_bin{i-1,2} cell_num = cell_num+1; end
+        elseif ~strcmp(label_bin{i,1}, label_bin{i-1,1})
+                cell_num = 1;
+        elseif label_bin{i,3}<label_bin{i-1,3} 
+                cell_num = cell_num+1; 
         end
-        label_bin(i,3) = {cell_num};
+        label_bin(i,4) = {cell_num};
      end
 
-     P = [P(:,1:4) label_bin P(:,5:end)];
-     P = renamevars(P,'Var1','ROI_#');
-     P = renamevars(P,'Var2','ROI_Z');
-     P = renamevars(P,'Var3','Cell_#');
+     P = [P(:,1:4) label_bin(:,2:end) P(:,5:end)];
+     P = renamevars(P,'Var2','ROI_#');
+     P = renamevars(P,'Var3','ROI_Z');
+     P = renamevars(P,'Var4','Cell_#');
      P.Unique_Z_ID_P = join(strcat([string(P.("CodedFile#")),...
          string(P.("Cell_#")),string(P.ROI_Z)]),"_");
      P = [P(:,1:7) P(:,end) P(:,8:end-1)];

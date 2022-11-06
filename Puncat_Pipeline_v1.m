@@ -11,11 +11,12 @@
 % on the project type.
 
 %% Combine files
+defaultpath = 'C:\Users\Zachary_Pranske\Desktop\pipeline_inputs';
 uiwait(msgbox('Open analysis folder containing subfolders called "measure" and "summary"'))
 d = dir(uigetdir('C:\Users\Zachary_Pranske\Desktop\ZP_03 pyramidal cell reanalysis 2022-10-31'));
 while(~max(ismember({d(1:end).name},"measure")) || ~max(ismember({d(1:end).name},"summary")))
     error('Folder must be parent folder containing "measure" and "summary" folders')
-    d = dir(uigetdir('C:\Users\Zachary_Pranske\Desktop\pipeline_inputs'));
+    d = dir(uigetdir(defaultpath));
 end; 
 
 % %DELETE THIS LINE LATER
@@ -46,13 +47,13 @@ end;
  
  T = [M_cells, S(ismember(S.Unique_Z_ID_S,M_cells.Unique_Z_ID),6:end), P(ismember(P.Unique_Z_ID_P,M_cells.Unique_Z_ID),:)];
  
- uiwait(msgbox('Upload decoding file: Should be an Excel spreadsheet or csv containing columns called "File#", "Condition", and "Region"','Upload decoding file'))
- d_coding = uigetfile('*.*','Select file','C:\Users\Zachary_Pranske\Desktop\pipeline_inputs');
+ uiwait(msgbox('Upload decoding file: Should be an Excel spreadsheet or csv containing columns called "File#" and "Condition".','Upload decoding file'))
+ d_coding = uigetfile('*.*','Select file',defaultpath);
  D = readtable([d(1).folder,'\',d_coding]);
  
- if ~(D.Properties.VariableNames == [{'File_'} {'Condition'} {'Region'}])
+ if ~(D.Properties.VariableNames(1:2) == [{'File_'} {'Condition'}])
      D.Properties.VariableNames(1) = {'File_'};
-     if ~(D.Properties.VariableNames == [{'File_'} {'Condition'} {'Region'}])
+     if ~(D.Properties.VariableNames(1:2) == [{'File_'} {'Condition'}])
          error('Unable to match file #s. Check decoding file headers.')
      end
  end         
@@ -64,10 +65,15 @@ end;
  for i=1:height(D)
      T(T.("CodedFile#")==(D.File_(i)),end_idx+1) = table(string(D.Condition(i)));
      T(T.("CodedFile#")==(D.File_(i)),end_idx+2) = table(string(D.Region(i)));
+     T(T.("CodedFile#")==(D.File_(i)),end_idx+3) = table(string(D.Animal(i)));
+     T(T.("CodedFile#")==(D.File_(i)),end_idx+4) = table(string(D.Day(i)));
+
  end
  
  T = renamevars(T,T(:,end_idx+1).Properties.VariableNames{1},'Condition');
  T = renamevars(T,T(:,end_idx+2).Properties.VariableNames{1},'Region');
+ T = renamevars(T,T(:,end_idx+3).Properties.VariableNames{1},'Animal');
+ T = renamevars(T,T(:,end_idx+4).Properties.VariableNames{1},'Day');
  T = [T(:,1:7) T(:,end-1:end) T(:,8:end-2)];
  
  disp('Checking file for incomplete data...')
@@ -88,7 +94,9 @@ end;
 %   containing the name of the treatment group to normalize to.
 
 figure(1); b = plotVariable(T, "NormCount", "Condition");
-figure(2); b2 = plotVariable(T, "mean_Mean_P", "Condition");
+figure(2); b2 = plotVariable(T, "AverageSize", "Condition");
+figure(3); b3 = plotVariable(T, "PercentArea", "Condition");
+figure(4); b4 = plotVariable(T, "mean_Mean_P", "Condition");
 
 %figure(2); b2 = plotVariable(T, "NormCount", "Condition", "ctrl_test");
 
@@ -97,4 +105,10 @@ figure(2); b2 = plotVariable(T, "mean_Mean_P", "Condition");
 
 %% STATS
 
-%runstats2(T, "TotalArea", "Condition", ["ctrl_test" "sema4d_test"]);
+runstats2(T, "NormCount", "Condition", ["GFP" "Sema4D"]);
+runstats2(T, "AverageSize", "Condition", ["GFP" "Sema4D"]);
+runstats2(T, "PercentArea", "Condition", ["GFP" "Sema4D"]);
+runstats2(T, "mean_Mean_P", "Condition", ["GFP" "Sema4D"]);
+
+
+ 
