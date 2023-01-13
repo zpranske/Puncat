@@ -48,7 +48,7 @@ puncta channels.
 
 // NOTE: Root filepath must use forward slashes
 
-path2save = "C:/Users/Zachary_Pranske/Desktop/ZP_03 pyramidal cell reanalysis 2022-10-31"
+path2save = "C:/Users/Zachary_Pranske/Desktop/ZP_03 PV cell reanalysis 2022-11-06"
 
 minthreshold = 867 		//Adjust for each round of imaging
 maxthreshold = 65535 	//Don't change

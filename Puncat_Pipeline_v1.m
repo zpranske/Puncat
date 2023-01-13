@@ -92,16 +92,19 @@ end;
 %   analyze, and a string corresponding to the column containing the subgroup
 %   identifier (e.g. Condition or Region). Can optionally include a string
 %   containing the name of the treatment group to normalize to.
-
-figure(1); b = plotVariable(T, "NormCount", "Condition");
-figure(2); b2 = plotVariable(T, "AverageSize", "Condition");
-figure(3); b3 = plotVariable(T, "PercentArea", "Condition");
-figure(4); b4 = plotVariable(T, "mean_Mean_P", "Condition");
-
-%figure(2); b2 = plotVariable(T, "NormCount", "Condition", "ctrl_test");
+%   Example call: b = plotVariable(T, "NormCount", "Condition", "GFP");
 
 %Graph params can be changed by accessing the graph by its handle b or 
 %   accessing the axis by the handle b.Parent
+%   Example call: b4.Parent.Title.String = 'Mean puncta intensity';
+
+figure(1) = subplot(2,2,1); b = plotVariable(T, "NormCount", "Condition");
+subplot(2,2,2); b2 = plotVariable(T, "AverageSize", "Condition");
+subplot(2,2,3); b3 = plotVariable(T, "PercentArea", "Condition");
+subplot(2,2,4); b4 = plotVariable(T, "mean_Mean_P", "Condition");
+
+b4.Parent.Title.String = 'Mean puncta intensity';
+b4.Parent.YLabel.String = 'Mean puncta intensity';
 
 %% STATS
 
