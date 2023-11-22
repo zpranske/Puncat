@@ -269,14 +269,17 @@ Sub combineSheetsInfo()
      For i = 1 To WS_Count
 	'HERE IS THE CODE BLOCK TO EXECUTE ON EACH SHEET
     	Sheets(ActiveWorkbook.Worksheets(i).Name).Select
-        Range("B2").Select
-        Selection.Copy
+	tname = ActiveWorkbook.Worksheets(i).Name
+        'Range("B2").Select
+        'Selection.Copy
         Sheets("Sheet1").Select
         Range("A1").Select
          ActiveCell.Offset(rowOffset:=0, columnOffset:=i-1).Activate
-        ActiveSheet.Paste
+        'ActiveSheet.Paste
+	ActiveCell.FormulaR1C1 = tname
         Sheets(ActiveWorkbook.Worksheets(i).Name).Select
-        Range("D2").Select
+	'HERE IS THE COLMUNN YOU WANT TO COPY IN EACH SHEET
+        Range("B2").Select
         Range(Selection, Selection.End(xlDown)).Select
         Application.CutCopyMode = False
         Selection.Copy
