@@ -30,6 +30,81 @@ MAKE A BACKUP LOCATION FOR ALL SUMMARY, DRAWING, AND MEASURE FILES BEFORE PROCEE
 
 Macros
 ********************************************************************************************************************
+Sub mergeFiles()
+    'Merges all files in a folder to a main file (Giving x Worksheets in this File)
+    
+    'Define variables:
+    Dim numberOfFilesChosen, i As Integer
+    Dim tempFileDialog As FileDialog
+    Dim mainWorkbook, sourceWorkbook As Workbook
+    Dim tempWorkSheet As Worksheet
+    
+    Set mainWorkbook = Application.ActiveWorkbook
+    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    
+    'Allow the user to select multiple workbooks
+    tempFileDialog.AllowMultiSelect = True
+    
+    numberOfFilesChosen = tempFileDialog.Show
+    
+    'Loop through all selected workbooks
+    For i = 1 To tempFileDialog.SelectedItems.Count
+        
+        'Open each workbook
+        Workbooks.Open tempFileDialog.SelectedItems(i)
+        
+        Set sourceWorkbook = ActiveWorkbook
+        
+        'Copy each worksheet to the end of the main workbook
+        For Each tempWorkSheet In sourceWorkbook.Worksheets
+            Columns("A:A").Select
+            Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+            Range("A2").Select
+            ActiveCell.FormulaR1C1 = ActiveWorkbook.Name
+            Selection.AutoFill Destination:=Range("A2:A242")
+            tempWorkSheet.Copy After:=mainWorkbook.Sheets(mainWorkbook.Worksheets.Count)
+        Next tempWorkSheet
+        
+        'Close the source workbook
+        Application.DisplayAlerts = False
+        sourceWorkbook.Close
+        Application.DisplayAlerts = True
+    Next i    
+End Sub
+********************************************************************************************************************
+Sub combineSheetsInfo()
+     Dim mainWorkbook, sourceWorkbook As Workbook
+     Dim tempWorkSheet As Worksheet
+
+     Set mainWorkbook = Application.ActiveWorkbook
+     Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+     Set sourceWorkbook = ActiveWorkbook
+
+     WS_Count = ActiveWorkbook.Worksheets.Count
+    
+     For i = 1 To WS_Count
+    'HERE IS THE CODE BLOCK TO EXECUTE ON EACH SHEET
+        Sheets(ActiveWorkbook.Worksheets(i).Name).Select
+        Range("A2").Select
+        Selection.Copy
+        Sheets("Sheet1").Select
+        Range("A1").Select
+        ActiveCell.Offset(rowOffset:=0, columnOffset:=i - 1).Activate
+        ActiveSheet.Paste
+        Sheets(ActiveWorkbook.Worksheets(i).Name).Select
+    'HERE IS THE COLMUNN YOU WANT TO COPY IN EACH SHEET
+        Range("C2").Select
+        Range(Selection, Selection.End(xlDown)).Select
+        Application.CutCopyMode = False
+        Selection.Copy
+        Sheets("Sheet1").Select
+    Range("A2").Select
+    ActiveCell.Offset(rowOffset:=0, columnOffset:=i - 1).Activate
+        ActiveSheet.Paste
+    Next i
+    Application.DisplayAlerts = True
+End Sub
+********************************************************************************************************************
 Sub preprocessMeasures()
     'Loops through all files in a folder and tags each line with the image # (obtained from file name)
     
@@ -173,46 +248,6 @@ Sub preprocessSummaries()
     Next i
 End Sub
 ********************************************************************************************************************
-Sub mergeFiles()
-    'Merges all files in a folder to a main file (Giving x Worksheets in this File)
-    
-    'Define variables:
-    Dim numberOfFilesChosen, i As Integer
-    Dim tempFileDialog As FileDialog
-    Dim mainWorkbook, sourceWorkbook As Workbook
-    Dim tempWorkSheet As Worksheet
-    
-    Set mainWorkbook = Application.ActiveWorkbook
-    Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
-    
-    'Allow the user to select multiple workbooks
-    tempFileDialog.AllowMultiSelect = True
-    
-    numberOfFilesChosen = tempFileDialog.Show
-    
-    'Loop through all selected workbooks
-    For i = 1 To tempFileDialog.SelectedItems.Count
-        
-        'Open each workbook
-        Workbooks.Open tempFileDialog.SelectedItems(i)
-        
-        Set sourceWorkbook = ActiveWorkbook
-        
-        'Copy each worksheet to the end of the main workbook
-        For Each tempWorkSheet In sourceWorkbook.Worksheets
-            tempWorkSheet.Copy After:=mainWorkbook.Sheets(mainWorkbook.Worksheets.Count)
-        Next tempWorkSheet
-        
-        'Close the source workbook
-        Application.DisplayAlerts = False
-        sourceWorkbook.Close
-        Application.DisplayAlerts = True
-    Next i
-    
-    mainWorkbook.Save
-    
-End Sub
-********************************************************************************************************************
 Sub delete_sheets()
     'Deletes Sheets in various Files. Define Sheets to be deleted in If condition of for each loop
     
@@ -254,40 +289,5 @@ Sub delete_sheets()
     Next i
     
     Application.ScreenUpdating = True
-End Sub
-********************************************************************************************************************
-Sub combineSheetsInfo()
-     Dim mainWorkbook, sourceWorkbook As Workbook
-     Dim tempWorkSheet As Worksheet
-
-     Set mainWorkbook = Application.ActiveWorkbook
-     Set tempFileDialog = Application.FileDialog(msoFileDialogFilePicker)
-     Set sourceWorkbook = ActiveWorkbook
-
-     WS_Count = ActiveWorkbook.Worksheets.Count
-    
-     For i = 1 To WS_Count
-	'HERE IS THE CODE BLOCK TO EXECUTE ON EACH SHEET
-    	Sheets(ActiveWorkbook.Worksheets(i).Name).Select
-	tname = ActiveWorkbook.Worksheets(i).Name
-        'Range("B2").Select
-        'Selection.Copy
-        Sheets("Sheet1").Select
-        Range("A1").Select
-         ActiveCell.Offset(rowOffset:=0, columnOffset:=i-1).Activate
-        'ActiveSheet.Paste
-	ActiveCell.FormulaR1C1 = tname
-        Sheets(ActiveWorkbook.Worksheets(i).Name).Select
-	'HERE IS THE COLMUNN YOU WANT TO COPY IN EACH SHEET
-        Range("B2").Select
-        Range(Selection, Selection.End(xlDown)).Select
-        Application.CutCopyMode = False
-        Selection.Copy
-        Sheets("Sheet1").Select
-    Range("A2").Select
-    ActiveCell.Offset(rowOffset:=0, columnOffset:=i-1).Activate
-        ActiveSheet.Paste
-    Next i
-    Application.DisplayAlerts = True
 End Sub
 ********************************************************************************************************************
